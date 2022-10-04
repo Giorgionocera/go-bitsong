@@ -13,7 +13,7 @@
 <title>1</title>
 <ellipse fill="none" stroke="gray" cx="147.87" cy="-339.5" rx="80.84" ry="80.84"/>
 <text text-anchor="middle" x="147.87" y="-376.4" font-family="Times,serif" font-size="12.00" fill="gray">just issued</text>
-<text text-anchor="middle" x="147.87" y="-363.4" font-family="Times,serif" font-size="12.00" fill="gray">fan token</text>
+<text text-anchor="middle" x="147.87" y="-363.4" font-family="Times,serif" font-size="12.00" fill="gray">FanToken</text>
 <text text-anchor="middle" x="147.87" y="-336.4" font-family="Times,serif" font-size="12.00" fill="gray">no circulating tokens</text>
 <text text-anchor="middle" x="147.87" y="-309.4" font-family="Times,serif" font-size="12.00" fill="gray">+ editable</text>
 <text text-anchor="middle" x="147.87" y="-296.4" font-family="Times,serif" font-size="12.00" fill="gray">+ mintable</text>

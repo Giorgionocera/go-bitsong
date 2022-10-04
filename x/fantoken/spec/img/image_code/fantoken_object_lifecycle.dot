@@ -4,7 +4,7 @@ digraph finite_state_machine {
     rankdir="LR";
     bgcolor="transparent";
 
-    node [shape = circle, width=2.0 ,label="just issued\nfan token\n\nno circulating tokens\n\n+ editable\n+ mintable", fontsize=12, color="gray", fontcolor="gray"] 1;
+    node [shape = circle, width=2.0 ,label="just issued\nFanToken\n\nno circulating tokens\n\n+ editable\n+ mintable", fontsize=12, color="gray", fontcolor="gray"] 1;
     node [shape = circle, width=2.0 ,label="some tokens\nare circulating\n\n+ editable\n+ mintable", fontsize=12, color="gray", fontcolor="gray"] 2;
     node [shape = circle, width=2.0 ,label="max-supply reached\n\n+ editable\n+ mintable", fontsize=12, color="gray", fontcolor="gray"] 3;
     node [shape = circle, width=2.0 ,label="minting disabled\nsome are circulating\n\n+ editable\n- mintable", fontsize=12, color="gray", fontcolor="gray"] 4;

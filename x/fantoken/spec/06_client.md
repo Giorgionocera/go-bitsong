@@ -6,7 +6,7 @@ order: 6
 
 ## Transactions
 
-The `transactions` commands allow users to `issue`, `mint`, `burn`, `disable minting`, `transfer minting and editing capabilities` for _fan tokens_.
+The `transactions` commands allow users to `issue`, `mint`, `burn`, `disable minting`, `transfer minting and editing capabilities` for _FanTokens_.
 
 ```bash=
 bitsongd tx fantoken --help
