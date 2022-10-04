@@ -17,7 +17,7 @@ Thanks to this module, anyone inside the BitSong ecosystem can start creating th
 *NFT* (**Non-Fungible Token**) are particular type of token used to represent somthing that is *unique*. **Non-fungible**, in fact, is an economic term generally used to describe things which have been considered in their identity and are not replaceable with any other asset.
 
 To make it clearer the difference between *fungible* and *non-fungible* tokens we can use an example.
-Let's assume that Alice has got a 5 euro banknote. Also Bob has got a 5 euro bankonote. If Alice exchange this bankonote with bob, in the end, nothing changes. This is possible because money is a **fungible** commodity, and each banknote is exchangeable for any other if it is part of the same denomination.
+Let's assume that Alice has got a 2 euro coin. Also Bob has got a 2 euro coin. If Alice exchange this coin with bob, in the end, nothing changes. This is possible because money is a **fungible** commodity, and each coin is exchangeable for any other if it is part of the same denomination.
 
 On the other hand, Charlie has a very rare limited edition pokemon collection card, produced in 2005 and kept in perfect condition. All these conditions make the card a very rare, if not unique and, as a consequence, **non-fungible**.
 
