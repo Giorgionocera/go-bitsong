@@ -38,8 +38,11 @@ Features that may be added in the future are described in Future Improvements.
    - [Lifecycle of a FanToken](01_concepts.md#Lifecycle-of-a-fan-token)
    - [Uniqueness of the denom](01_concepts.md#Uniqueness-of-the-denom)
 2. **[State](02_state.md)**
-   - [Params](02_state.md#Params)
-   - [Fan Token](02_state.md#Token)
+   - [State objects](02_state.md#state-objects)
+      - [FanToken](02_state.md#fantoken)
+         - [Metadata](02_state.md#metadata)
+      - [FanToken By Denom](02_state.md#fantoken-by-denom)
+   - [Genesis State](02_state.md#genesis-state)
      <!--
      State Transitions
      -->
