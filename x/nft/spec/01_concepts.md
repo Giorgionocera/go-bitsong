@@ -84,7 +84,7 @@ Once the `Collection Metadata` are produced (we suggest to follow the [OpenSea s
 Now it is the turn of the `NFT Metadata`. Once you produced them (we suggest to follow the [OpenSea standard](https://docs.opensea.io/docs/metadata-standard)), you need to store them in decentralized file networks so that can't be modified by a central party (e.g., on IPFS or Arweave).
 
 ### 3. Create "**Normal**" NFT
-At this point, it is possible to create a new *NFT*. Here you need to define all the information about the *NFT*, like the `Collection` the *NFT* belongs to, the information about the `Creators`, the `Metadata` uri and so on. That's all.
+At this point, it is possible to create a new *NFT*. Here you need to define all the information about the *NFT*, like the `Collection` the *NFT* belongs to, the information about the `Creators`, the `Metadata` uri and so on. This operation require the creator to pay an issue fee. At the moment, this coins are burned. That's all.
 If you want to try, the command from the CLI is `bitsongd tx nft create-nft`.
 
 ### 4. Prepare the **Metadata** for "multiple-edition" NFT
@@ -97,4 +97,4 @@ The next step is to create a new *NFT*, but this time, you need to specify a `Ma
 As one of the creators of the *NFT*, you should verify your address in order to recevie shares of the earn after the first sale. To do this, you can simply run the `bitsongd tx nft sign-metadata` command from the CLI.
 
 ### 7. Print "**Edition**" of the NFT
-Once all the previous steps have been successfully completed, you are ready to print one edition of the *NFT* you already created, to any valid address, by simply using the following command `bitsongd tx nft print-edition`.
+Once all the previous steps have been successfully completed, you are ready to print one edition of the *NFT* you already created, to any valid address, by simply using the following command `bitsongd tx nft print-edition`. This operation require the creator to pay an issue fee. At the moment, this coins are burned.
