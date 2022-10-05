@@ -28,10 +28,10 @@ Features that may be added in the future are described in Future Improvements.
    - [Merkle Tree](01_concepts.md#Merkle-tree)
    - [Verification process](01_concepts.md#Verification-process)
 2. **[State](02_state.md)**
-   - [LastMerkledropId](02_state.md#LastMerkledropId)
-   - [Merkledrops](02_state.md#Merkledrops)
-   - [Indexes](02_state.md#Indexes)
-   - [Params](02_state.md#Params)
+   - [State objects](02_state.md#state-objects)
+      - [MerkleDrop](02_state.md#merkledrop)
+      - [MerkleDrop by Owner and EndHeight, Claimed MerkleDrop](02_state.md#merkledrop-by-owner-and-endheight-claimed-merkledrop)
+   - [Genesis State](02_state.md#genesis-state)
      <!--
      State Transitions
      -->
