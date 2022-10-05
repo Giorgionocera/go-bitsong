@@ -63,7 +63,7 @@ Once defined the `Creator` and the `MasterEdition` objects, it is possible to de
 | mint_authority | `string` | It is the address of the minter for the *NFTs*. It can be changed to trasfer the minting ability of the *NFT* during the time. At the moment, this value can also be empty (which corresponds to a behavior in which no one is able to mint anymore). |
 | master_edition | `MasterEdition` | It is a `MasterEdition` object containing info about the ability to **print** multiple editions of this *NFT*. |
 
-### NFT
+### NFT
 At this point it is possible to define a BitSong *NFT*. Each *NFT* is globally identified by the triad `CollID:MetadataID:Seq`. Generally, a BitSong *NFT* is defined through:
 
 | Attribute | Type | Description |
@@ -83,18 +83,18 @@ Once the `Collection Metadata` are produced (we suggest to follow the [OpenSea s
 ### 2. Prepare the **Metadata** for "Normal" NFT
 Now it is the turn of the `NFT Metadata`. Once you produced them (we suggest to follow the [OpenSea standard](https://docs.opensea.io/docs/metadata-standard)), you need to store them in decentralized file networks so that can't be modified by a central party (e.g., on IPFS or Arweave).
 
-### 3. Create "Normal" NFT
+### 3. Create "**Normal**" NFT
 At this point, it is possible to create a new *NFT*. Here you need to define all the information about the *NFT*, like the `Collection` the *NFT* belongs to, the information about the `Creators`, the `Metadata` uri and so on. That's all.
 If you want to try, the command from the CLI is `bitsongd tx nft create-nft`.
 
 ### 4. Prepare the **Metadata** for "multiple-edition" NFT
 When you want to add another *NFT* to the `Collection` (this time, a multiple-edition one), you should start from the `NFT Metadata`. As usual, you need to store them.
 
-### 5. Create the "Master Edition" NFT
+### 5. Create the "**Master Edition**" NFT
 The next step is to create a new *NFT*, but this time, you need to specify a `MaxSupply` value. The command from the CLI is again the `bitsongd tx nft create-nft`, but pay attention to the flag `--master-edition-max-supply`.
 
 ### 6. Sign **Metadata** 
 As one of the creators of the *NFT*, you should verify your address in order to recevie shares of the earn after the first sale. To do this, you can simply run the `bitsongd tx nft sign-metadata` command from the CLI.
 
-### 7. Print "Edition" of the NFT
+### 7. Print "**Edition**" of the NFT
 Once all the previous steps have been successfully completed, you are ready to print one edition of the *NFT* you already created, to any valid address, by simply using the following command `bitsongd tx nft print-edition`.
