@@ -1,231 +1,315 @@
 # Messages
 
-## MsgCreateNFT
-
-`MsgCreateNFT` is a message to be used to create an nft with specific metadata.
-At the time of message execution, it creates new metadata object, and after that it creates an nft with the metadata.
-After execution, it returns nft and metadata ids.
-`sender` is set as nft creator and nft owner after the successful execution.
-
-```protobuf
-message MsgCreateNFT {
-  string sender = 1;
-  bitsong.nft.v1beta1.Metadata metadata = 2  [ (gogoproto.nullable) = false ];
-}
-message MsgCreateNFTResponse {
-  string id = 1;
-  uint64 coll_id = 2;
-  uint64 metadata_id = 3;
-}
-```
-
-Steps:
-
-1. Ensure collection with id value `msg.CollId` exists
-2. Ensure `msg.Sender` is owner of the collection
-3. Get unique metadata id by using last metadata id
-4. Store newly generated metadata id as last metadata id
-5. Create metadata object with newly generated metadataId
-6. Set all the verified field as false at the time of creation
-7. Store metadata object on storage
-8. Emit event for metadata creation
-9. Pay nft issue fee if it is set to positive value on params store
-10. Create nft with owner `msg.Sender`, `msg.CollId`, `metadataId` and 0 as `Seq`.
-11. Emit event for nft creation
-12. Return nft id and `metadataId`
-
-## MsgPrintEdition
-
-`MsgPrintEdition` is a message to print new edition for a metadata.
-Editions can be printed for metadata with `MasterEdition` field by metadata owner.
-
-```protobuf
-message MsgPrintEdition {
-  string sender = 1;
-  uint64 coll_id = 2;
-  uint64 metadata_id = 3;
-  string owner = 4;
-}
-message MsgPrintEditionResponse {
-  string id = 1;
-  uint64 coll_id = 2;
-  uint64 metadata_id = 3;
-}
-```
-
-Steps:
-
-1. Check metadata exists with id `msg.MetadataId`
-2. Ensure that master edition nft (0 as `Seq`) exists
-3. Ensure that message is executed by `metadata.MintAuthority`
-4. Ensure that meatadata is master edition metadata
-5. Ensure total supply is of MasterEdition is lower than max supply
-6. Generate new edition number for metadata
-7. Pay nft issue fee if it is set to positive value on params store
-8. Create a new NFT with `msg.CollId`, `msg.MetadataId` with new edition number and store
-9. Store the updated edition number on the storage
-10. Emit `EventPrintEdition` event for print edition
-11. Return nft identifier
-
-## MsgTransferNFT
-
-`MsgTransferNFT` is a message to update the owner of nft with new one.
-
-```protobuf
-message MsgTransferNFT {
-  string sender = 1;
-  string id = 2;
-  string new_owner = 3;
-}
-```
-
-Steps:
-
-1. Check nft exists with id `msg.Id`
-2. Check nft owner is equal to `msg.Sender`
-3. Update the owner of NFT to `msg.NewOwner`
-4. Store the updated nft on the storage
-5. Emit event for nft transfer
-
-## MsgSignMetadata
-
-`MsgSignMetadata` is a message to sign the creator field of metadata.
-Once it is executed, it set the `Verified` field of creators on metadata as true.
-
-```protobuf
-message MsgSignMetadata {
-  string sender = 1;
-  uint64 coll_id = 2;
-  uint64 metadata_id = 3;
-}
-```
-
-Steps:
-
-1. Check metadata exists with id `msg.MetadataId`
-2. Check if `msg.Sender` is one of the creators of metadata and return permission issue if not
-3. Set `Verified` field to true for `metadata.Creators`
-4. Store updated metadata on the storage
-5. Emit event for metadata sign
-
-## MsgUpdateMetadata
-
-`MsgUpdateMetadata` is a message to update metadata by the metadata update authority.
-`Name`, `URI`, `SellerFeeBasisPoints` and `Creators` fields can be changed when the metadata has `IsMutable` flag as true.
-
-```protobuf
-message MsgUpdateMetadata {
-  string sender = 1;
-  uint64 coll_id = 2;
-  uint64 metadata_id = 3;
-  // The name of the asset
-  string name = 4;
-  // URI pointing to JSON representing the asset
-  string uri = 5;
-  // Royalty basis points that goes to creators in secondary sales (0-10000)
-  uint32 seller_fee_basis_points = 6;
-  // Array of creators, optional
-  repeated bitsong.nft.v1beta1.Creator creators = 7
-      [ (gogoproto.nullable) = false ];
-}
-```
-
-Steps:
-
-1. Check metadata exists with id `msg.MetadataId`
-2. Check metadata is mutable and if not return immutable error
-3. Check `msg.Sender` is authority that has permission to update metadata
-4. Update metadata with passed `Name`, `Uri`, `SellerFeeBasisPoints` and `Creators`
-5. Reset Verified field to `false` for Creators
-6. Store updated metadata on the storage
-7. Emit event for metadata update
-
-## MsgUpdateMetadataAuthority
-
-`MsgUpdateMetadataAuthority` is a message to update metadata authority to another address.
-
-```protobuf
-message MsgUpdateMetadataAuthority {
-  string sender = 1;
-  uint64 coll_id = 2;
-  uint64 metadata_id = 3;
-  string new_authority = 4;
-}
-```
-
-Steps:
-
-1. Check metadata exists with id `msg.MetadataId`
-2. Ensure msg.Sender is the authority of metadata
-3. Update metadata `MetadataAuthority` with `NewAuthority`
-4. Store update metadata on the storage
-5. Emit evnet for authority update for the metadata
-
-## MsgUpdateMintAuthority
-
-`MsgUpdateMetadataAuthority` is a message to update mint authority to another address.
-
-```protobuf
-message MsgUpdateMintAuthority {
-  string sender = 1;
-  uint64 coll_id = 2;
-  uint64 metadata_id = 3;
-  string new_authority = 4;
-}
-```
-
-Steps:
-
-1. Check metadata exists with id `msg.MetadataId`
-2. Ensure msg.Sender is the mint authority of metadata
-3. Update metadata `MintAuthority` with `NewAuthority`
-4. Store update metadata on the storage
-5. Emit evnet for authority update for the metadata
+Messages (`msg`s) are objects that trigger state transitions. Messages are wrapped in transactions (`tx`s) that clients submit to the network. The BitSong SDK wraps and unwraps `nft` module messages from transactions.
 
 ## MsgCreateCollection
 
-`MsgCreateCollection` is a message to create a new collection.
+`MsgCreateCollection` is a message to create a new Collection which will groups a set of NFTs.
 
 ```protobuf
 message MsgCreateCollection {
+  // Sender of the message
   string sender = 1;
+
+  // Symbol of the new Collection
   string symbol = 2;
+
+  // Name of the new Collection
   string name = 3;
+
+  // URI pointing to a JSON representing the Collection (preferable on a 
+  // decentralized file network)
   string uri = 4;
+
+  // True if the Collection is mutable. Once false, cannot be flipped anymore.
   bool is_mutable = 5;
+
+  // Address of the wallet who can update this Collection (while is_mutable is
+  // true)
   string update_authority = 6;
 }
+
 message MsgCreateCollectionResponse {
+  // Newly created Collection ID
   uint64 id = 1;
 }
 ```
 
 Steps:
 
-1. Get unique id by using last collection id
-2. Store newly generated collection id as last collection id
-3. Create collection with `collectionId`, `msg.Symbol`, `msg.Name`, `msg.Uri`, `msg.IsMutable` and `msg.UpdateAuthority`
-4. Store collection on the storage
-5. Emit event for new collection creation
-6. Return `collectionId` as part of msg response.
+1. Get the next unique `collection_id` by using `last_collection_id` (it is an autoincrement integer);
+2. Update the state with the new `last_collection_id`;
+3. Create the new Collection object with got `collection_id`, `msg.Symbol` as symbol, `msg.Name` as name, `msg.Uri` as URI, `msg.IsMutable` as value for the is_mutable value, and `msg.UpdateAuthority` as authority for the Collection;
+4. Update the state with the new `Collection`;
+5. Emit event for new Collection creation;
+6. Return newly create `collection_id`.
 
-## MsgUpdateCollectionAuthority
+## MsgCreateNFT
 
-`MsgUpdateCollectionAuthority` is a message to update collection authority to a new one.
-It should be executed by collection authority.
+`MsgCreateNFT` is a message for creating an NFT with specific Metadata.
+The execution of this message will produce the creation of a new `Metadata` object and the creation of a new NFT associated to this newly created Metadata.
+It returns the just created NFT and Metadata ids.
+Here, the `sender` is set as NFT creator (`Authority` and `Minter`) and NFT `Owner` after the successful execution.
 
 ```protobuf
-message MsgUpdateCollectionAuthority {
+message MsgCreateNFT {
+  // Sender of the message
   string sender = 1;
-  uint64 collection_id = 2;
-  string new_authority = 3;
+
+  // Metadata for the new NFT
+  Metadata Metadata = 2  [ (gogoproto.nullable) = false ];
+}
+message MsgCreateNFTResponse {
+  // ID of the newly created NFT
+  string id = 1;
+
+  // Collection of the newly created NFT
+  uint64 coll_id = 2;
+
+  // Metadata id linked to the newly created NFT
+  uint64 metadata_id = 3;
 }
 ```
 
 Steps:
 
-1. Check collection exists with id `msg.CollectionId`
-2. Ensure collection's `UpdateAuthority` is equal to `msg.Sender`
-3. Update collection authority with `msg.NewAuthority`
-4. Store updated collection object into storage
-5. Emit event for collection authority update
+1. Ensure Collection with id value `msg.Metadata.CollId` exists;
+2. Ensure `msg.Sender` is the actual `Authority` of the Collection;
+3. Get the next unique `metadata_id` by using `last_metadata_id` (it is an autoincrement integer);
+4. Update the state with the new `last_metadata_id`;
+5. Create `Metadata` for the new NFT object;
+6. For each creator, set the `verified` field to false (since no creator validated the new Metadata yet);
+7. Manage the `MasterEdition` for "Normal NFT", by using a `MaxSupply = Supply = 1`;
+8. Update the state with the new `Metadata`;
+9. Emit event for Metadata creation;
+10. Pay the NFT *issue fee* if the parameter is a positive value;
+11. Create an NFT object that has as owner the `msg.Sender`, belongs to the Collection `msg.CollId`, is linked to the newly created `metadata_id` and has 0 as sequence number `Seq`;
+12. Update the state with the new `NFT`;
+13. Emit event for NFT creation;
+14. Return newly created NFT `id` and `metadata_id`.
+
+## MsgPrintEdition
+
+`MsgPrintEdition` is a message for printing a new edition for a *multiple-copies* NFT. It allows to create copies for a `MasterEdition` which not reached the `MaxSupply` yet.
+Editions can only be printed by `Minter`.
+
+```protobuf
+message MsgPrintEdition {
+  // Sender of the message
+  string sender = 1;
+
+  // Collection of the NFT you want to print
+  uint64 coll_id = 2;
+
+  // Metadata of the NFT you want to print
+  uint64 metadata_id = 3;
+
+  // Address of the wallet you want to print the NFT 
+  string owner = 4;
+}
+message MsgPrintEditionResponse {
+  // ID of the newly created NFT
+  string id = 1;
+
+  // Collection of the newly created NFT
+  uint64 coll_id = 2;
+
+  // Metadata id linked to the newly created NFT
+  uint64 metadata_id = 3;
+}
+```
+
+Steps:
+
+1. Ensure that Metadata with id `msg.MetadataId` exists;
+2. Ensure that the master edition NFT for such a Metadata exists (the one with `Seq = 0`);
+3. Ensure that message is executed by the Metadata `Minter`;
+4. Ensure that `MasterEdition` attribute for Metadata is valid;
+5. Ensure that the current supply of the printed NFT is lower than `MaxSupply`;
+6. Obtain Seq number for the new Metadata;
+7. Update the state with the new `Metadata` including the incremented supply;
+8. Pay the NFT *issue fee* if the parameter is a positive value;
+9. Create a new NFT with `msg.CollId`, `msg.MetadataId`, new edition number and `msg.Owner`
+10. Update the state with the new `NFT`;
+11. Emit event for print edition;
+12. Return NFT identifier.
+
+## MsgTransferNFT
+
+`MsgTransferNFT` is a message for updating the owner of an NFT.
+
+```protobuf
+message MsgTransferNFT {
+  // Sender of the message
+  string sender = 1;
+
+  // ID of the NFT to transfer
+  string id = 2;
+
+  // New Owner of the NFT
+  string new_owner = 3;
+}
+```
+
+Steps:
+
+1. Ensure that NFT with id `msg.Id` exists;
+2. Ensure that the `msg.Sender` is the actual `Owner` of the NFT;
+3. Set the owner of NFT to `msg.NewOwner`;
+4. Update the state with the updated `NFT`;
+5. Emit event for an NFT transfer.
+
+## MsgSignMetadata
+
+`MsgSignMetadata` is a message for allowing the creator verifying the Metadata.
+IMPORTANT: This is a mandatory step to get shares for secondary sells.
+Once it is executed, the `Verified` field of the specific creator for the specific Metadata become true.
+
+```protobuf
+message MsgSignMetadata {
+  // Sender of the message
+  string sender = 1;
+
+  // ID of the Collection to which the Metadata belongs
+  uint64 coll_id = 2;
+
+  // ID of the Metadata to sign
+  uint64 metadata_id = 3;
+}
+```
+
+Steps:
+
+1. Ensure that Metadata with id `msg.MetadataId` exists;
+2. Ensure that `msg.Sender` is one of the creators of Metadata;
+3. Set `Verified` attribute to true for such a Creator;
+4. Update the state with the updated Metadata;
+5. Emit event for Metadata sign.
+
+## MsgUpdateMetadata
+
+`MsgUpdateMetadata` is a message for updating Metadata. It can be run only by the Metadata UpdateAuthority.
+`Name`, `URI`, `SellerFeeBasisPoints` and `Creators` fields can be changed when the Metadata has `IsMutable` flag as true.
+IMPORTANT: AFTER THIS UPDATE, ALL THE CREATORS WILL BE AUTOMATICALLY "UNSIGNED" AND THEY WILL NOT RECEIVE SHARES UP TO A NEW SIGN.
+
+```protobuf
+message MsgUpdateMetadata {
+  // Sender of the message
+  string sender = 1;
+
+  // ID of the Collection to which the Metadata belongs
+  uint64 coll_id = 2;
+
+  // ID of the Metadata to update
+  uint64 metadata_id = 3;
+
+  // New name of the asset
+  string name = 4;
+  
+  // New URI of the asset pointing to a JSON representing the asset (
+  // preferable on a decentralized file network)
+  string uri = 5;
+
+  // New value for royalty percentage for the verified creators group in all 
+  // secondary sales [0;10000] (corresponds to [0.00;100.00])
+  uint32 seller_fee_basis_points = 6;
+  
+  // New array of creators. They, once verified, will receive shares of earn 
+  // for secondary sales. IMPORTANT: They will be automatically "unsigned"
+  repeated Creator creators = 7
+      [ (gogoproto.nullable) = false ];
+}
+```
+
+Steps:
+
+1. Ensure that Metadata with id `msg.MetadataId` exists;
+2. Ensure that Metadata is mutable;
+3. Ensure `msg.Sender` is authority for the Metadata;
+4. Set passed `Name`, `Uri`, `SellerFeeBasisPoints` and `Creators` for the Metadata;
+5. Set `verified` attribute to `false` for all creators;
+4. Update the state with the updated Metadata;
+7. Emit event for Metadata update.
+
+## MsgUpdateMetadataAuthority
+
+`MsgUpdateMetadataAuthority` is a message for updating Metadata authority address.
+
+```protobuf
+message MsgUpdateMetadataAuthority {
+  // Sender of the message
+  string sender = 1;
+
+  // ID of the Collection to which the Metadata belongs
+  uint64 coll_id = 2;
+
+  // ID of the Metadata to update
+  uint64 metadata_id = 3;
+
+  // Address of the new authority
+  string new_authority = 4;
+}
+```
+
+Steps:
+
+1. Ensure Metadata with id `msg.MetadataId` exists;
+2. Ensure `msg.Sender` is the actual authority for the Metadata;
+3. Set Metadata `UpdateAuthority` with `NewAuthority`;
+4. Update the state with the updated Metadata;
+5. Emit event for authority update for the Metadata.
+
+## MsgUpdateMintAuthority
+
+`MsgUpdateMetadataAuthority` is a message for updating the Minter address.
+
+```protobuf
+message MsgUpdateMintAuthority {
+  // Sender of the message
+  string sender = 1;
+
+  // ID of the Collection to which the Metadata belongs
+  uint64 coll_id = 2;
+
+  // ID of the Metadata to update
+  uint64 metadata_id = 3;
+
+  // Address of the new authority
+  string new_authority = 4;
+}
+```
+
+Steps:
+
+1. Ensure Metadata with id `msg.MetadataId` exists;
+2. Ensure `msg.Sender` is the actual authority for the Metadata;
+3. Set Metadata `MintAuthority` with `NewAuthority`;
+4. Update the state with the updated Metadata;
+5. Emit event for mint authority update for the Metadata.
+
+## MsgUpdateCollectionAuthority
+
+`MsgUpdateCollectionAuthority` is a message to update Collection authority to a new one.
+It should be executed by Collection authority.
+
+```protobuf
+message MsgUpdateCollectionAuthority {
+  // Sender of the message
+  string sender = 1;
+
+  // ID of the Collection to update
+  uint64 collection_id = 2;
+
+  // Address of the new authority
+  string new_authority = 4;
+}
+```
+
+Steps:
+
+1. Ensure Collection exists with id `msg.CollectionId`;
+2. Ensure `msg.Sender` is the actual authority for the Collection;
+3. Set Collection authority with `msg.NewAuthority`;
+4. Store updated Collection object into storage
+4. Update the state with the updated Collection;
+5. Emit event for Collection authority update.
