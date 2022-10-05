@@ -46,9 +46,22 @@ Features that may be added in the future are described in Future Improvements.
 ## Table of Contents
 
 1. **[Concepts](01_concepts.md)**
-   
+     - [Non-Fungible Tokens](01_concepts.md#non-fungible-tokens)
+          - [Collection](01_concepts.md#collection)
+          - [Metadata](01_concepts.md#metadata)
+               - [Creator](01_concepts.md#creator)
+               - [MasterEdition](01_concepts.md#masteredition)
+               - [Metadata](01_concepts.md#metadata-1)
+          - [NFT](01_concepts.md#nft)
+     - [Main steps in NFTs project delivery](01_concepts.md#main-steps-in-nfts-project-delivery)
 2. **[State](02_state.md)**
-   
+     - [State Objects](02_state.md#state-objects)
+          - [NFT](02_state.md#nft)
+          - [NFT by Owner](02_state.md#nft-by-owner)
+          - [Metadata](02_state.md#metadata)
+          - [Collection](02_state.md#collection)
+          - [Last Metadata Id Info](02_state.md#lastmetadataidinfo)
+     - [Genesis State](02_state.md#genesis-state)
      <!--
      State Transitions
      -->
@@ -56,7 +69,15 @@ Features that may be added in the future are described in Future Improvements.
      Keeper
      -->
 3. **[Messages](03_messages.md)**
-   
+     - [MsgCreateCollection](03_messages.md#msgcreatecollection)
+     - [MsgCreateNFT](03_messages.md#msgcreatenft)
+     - [MsgPrintEdition](03_messages.md#msgprintedition)
+     - [MsgTransferNFT](03_messages.md#msgtransfernft)
+     - [MsgSignMetadata](03_messages.md#msgsignmetadata)
+     - [MsgUpdateMetadata](03_messages.md#msgupdatemetadata)
+     - [MsgUpdateMetadataAuthority](03_messages.md#msgupdatemetadataauthority)
+     - [MsgUpdateMintAuthority](03_messages.md#msgupdatemintauthority)
+     - [MsgUpdateCollectionAuthority](03_messages.md#msgupdatecollectionauthority)
      <!--
      Begin-Block
      -->
@@ -64,7 +85,6 @@ Features that may be added in the future are described in Future Improvements.
      End-Block
      -->
 4. **[Events](04_events.md)**
-   
 5. **[Parameters](05_parameters.md)**
    <!--
    Test Cases
