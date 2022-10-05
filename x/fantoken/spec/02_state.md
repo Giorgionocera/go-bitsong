@@ -3,51 +3,76 @@ order: 2
 -->
 
 # State
+## State Objects
 
-The `fantoken` module keeps track of [**parameters**](#Params) and [**FanTokens**](#Token).
+The `x/fantoken` module keeps the following objects in state:
 
-```
-Params:			types.Params
-FanTokens:		[]types.FanToken
-```
+| State Object | Description | Key | Value | Store |
+| ------------ | ----------- | --- | ----- | ----- |
+| `FanTokenForDenom` | FanToken bytecode by Denom | `[]byte{1} + []byte{denom}` | `[]byte{fantoken}` | KV |
+| `FanTokens` | FanTokens bytecode | `[]byte{2} + []byte{owner} + []byte{denom}` | `[]byte{denom}` | KV |
 
-## Params
 
-In the state definition, we can find the **Params**. This section corresponds to a module-wide configuration structure that stores system parameters. In particular, it defines the overall fantoken module functioning and contains the **issueFee**, **mintFee** and **burnFee** for the _FanToken_. Such an implementation allows governance to decide the issue fee, but also the mint and burn fees the users have to pay to perform these operations with the tokens, in an arbitrary way - since proposals can modify it.
+### FanToken
 
-```go
-type Params struct {
-	IssueFee	sdk.Coin
-	MintFee		sdk.Coin
-	BurnFee		sdk.Coin
+A `FanToken` is a new fungible FanToken on the BitSong ecosystem. It makes use of `metadata` defined as:
+
+#### Metadata
+```protobuf
+message Metadata {
+  // The name of the fantoken (eg: Kitty Punk)
+  string name = 1;
+
+  // The token symbol usually shown on exchanges (eg: KITTY)
+  string symbol = 2;
+
+  // The URI to a document (on or off-chain) that contains additional 
+  // information. Optional.
+  string uri = 3 [ (gogoproto.customname) = "URI" ];
+
+  // The address of the wallet allowed to set a new uri
+  string authority = 4;
 }
 ```
 
-## Fantoken
+In particular, a `FanToken` is made up of:
 
-The state contains a list of **Fantokens**. They are [FanTokens](01_concepts.md#Fan-token) (fungible tokens deriving by the ERC-20 Standard), and their state information is:
+```protobuf
+message FanToken {
+  // The string name of the given denom unit (e.g ft<hash>).
+  string denom = 1;
 
-- **Denom**, that corresponds to the identifier of the FanToken. It is a `string`, automatically calculated on the first `Minter`, `Symbol`, `Name` and `Block Height` of the issuing transaction of the _FanToken_ as explained in [concepts](01_concepts.md#Fan-token), and _cannot change_ for the whole life of the token;
-- **MaxSupply**, that represents the upper limit for the total supply of the tokens. More specifically, it is an `integer number`, expressed in micro unit (![formula](https://render.githubusercontent.com/render/math?math=\color{gray}\mu=10^{-6})) as explained in [concepts](01_concepts.md#Fan-token), that _cannot change_ for the whole life of the token and which corresponds to the maximum number the supply can reach in any moment;
-- **Minter**, which corresponds to the address of the current `minter` for the token. It is an address and _can change_ during the token lifecycle thanks to the **minting ability transfer**. When the `minter` address is set to an empty value, the token can be minted no more;
-- **MetaData**, which contains metadata for the _FanToken_ and is made up of the `Name`, the `Symbol`, a `URI` and an `Authority` as described in [concepts](01_concepts.md#Fan-token).
+  // The maximum supply value of mintable tokens from its definition.
+  string max_supply = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.moretags) = "yaml:\"max_supply\"",
+    (gogoproto.nullable) = false
+  ];
 
-More specifically, the `metadata` _can change_ during the life of the token according to:
-- **URI** can be changed by the `authority`. It can be changed until when the authority is available;
-- **Authority** which can be transferred by the current authority until when the `authority` itself is not set to an empty value.
+  // // The address of the wallet allowed to mint new FanToken
+  string minter = 3;
 
-```go
-type FanToken struct {
-	Denom		string
-	MaxSupply	sdk.Int
-	Minter		string
-	MetaData	types.Metadata
+  // Metadata object for the FanToken
+  Metadata meta_data = 4 [
+    (gogoproto.moretags) = "yaml:\"meta_data\"",
+    (gogoproto.nullable) = false
+  ];
 }
+```
 
-type Metadata struct {
-	Name		string
-	Symbol      string
-	URI         string
-	Authority	string
+### FanToken by Denom
+
+`FanTokenByDenom` is an additional state object for querying a FanToken by its `denom`.
+
+
+## Genesis State
+
+The `x/fantoken` module's `GenesisState` defines the state necessary for initializing the chain from a previous exported height. It is defined as:
+
+```protobuf
+message GenesisState {
+  Params params = 1 [ (gogoproto.nullable) = false ];
+
+  repeated FanToken fan_tokens = 2 [ (gogoproto.nullable) = false ];
 }
 ```
