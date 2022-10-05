@@ -3,63 +3,83 @@ order: 2
 -->
 
 # State
+## State Objects
 
-The `merkledrop` module keeps track of [**LastMerkledropId**](#LastMerkledropId), [**Merkledrops**](#Merkledrops), [**Indexes**](#Indexes) and [**Parameters**](#Params).
+The `x/merkledrop` module keeps the following objects in state:
 
-```
-LastMerkledropId: Uint64,
-Merkledrops:      []types.Merkledrop,
-Indexes:          []*types.Indexes,
-Params:           types.Params
-```
+| State Object | Description | Key | Value | Store |
+| ------------ | ----------- | --- | ----- | ----- |
+| `MerkleDrop` | MerkleDrop bytecode | `[]byte{1:merkledrop_id}` | `[]byte{merkledrop}` | KV |
+| `MerkleDropByOwner` | MerkleDrop id bytecode by Owner | `[]byte{2:owner:merkledrop_id}` | `[]byte{merkledrop_id}` | KV |
+| `LastMerkleDropId` | Last MerkleDrop id bytecode | `[]byte{3}` | `[]byte{merkledrop_id}` | KV |
+| `ClaimedMerkleDrop` | MerkleDrop claimed by Index | `[]byte{4:merkledrop_id:index}` | `[]byte{1}` | KV |
+| `MerkleDropByEndHeight` | MerkleDrop by End Height | `[]byte{10:block_height:merkledrop_id}` | `[]byte{1}` | KV |
 
-## LastMerkledropId
 
-This value is an integer that corresponds to the number of _merkledrops_ already created. It is used at the creation of a new merkledrop as its id.
+### MerkleDrop
 
-## Merkledrops
+A `MerkleDrop` is a new MerkleTree structure that allows the users to claim airdrop. It makes use of:
 
-The state contains a list of **Merkledrops**. They are [airdrop configuration](01_concepts.md#Merkledrop), and their state information is:
+```protobuf
+message Merkledrop {
+	// ID of the merkledrop
+	uint64 id = 1;
 
-- **Id** that corresponds to the identifier of the _merkledrop_. It is an `uint64`, automatically incremented everytime a new merkledrop is created;
-- **MerkleRoot**, that represent the root hash (in hex format) of the _merkle tree_ containing the data of the airdrop;
-- **StartHeight**, that is the block height value at which the drop allows the user to claim the tokens;
-- **EndHeight**, which corresponds to the block height value where the _merkledrop_ is considered expired and an automatic withdrawal is executed if part of the tokens were not claimed;
-- **Denom**, which corresponds to the `denom` of the token to drop;
-- **Amount**, that is the total `amount` of token to drop;
-- **Claimed** which corresponds to the value of claimed tokens from the users. At the beginning it is 0 and is increased at each claim;
-- **Owner** which is to the address of the wallet which is creating the _merkledrop_.
+	// Root of the merkledrop
+	string merkle_root = 2 [ (gogoproto.moretags) = "yaml:\"merkle_root\"" ];
 
-```go
-type Merkledrop struct {
-	Id 			uint64
-	MerkleRoot 	string
-	StartHeight int64
-	EndHeight 	int64
-	Denom 		string
-	Amount 		sdk.Int
-	Claimed 	sdk.Int
-	Owner 		string
+	// Starting block height for claim the airdrop
+	int64 start_height = 3;
+
+	// Ending block height for claim the airdrop
+	int64 end_height = 4;
+
+	// Denom to distribute through the merkledrop
+	string denom = 5;
+
+	// Total amount to distribuite through the merkledrop
+	string amount = 6 [
+		(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+		(gogoproto.nullable) = false
+	];
+
+	// Total amount already claimed through the merkledrop
+	string claimed = 7 [
+		(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+		(gogoproto.nullable) = false
+	];
+
+	// Owner of the merkledrop
+	string owner = 8;
 }
 ```
 
-## Indexes
-To perform the check operations, a list of index is also stored in the state for each merkledrop.
+### MerkleDrop by Owner and EndHeight, Claimed MerkleDrop
 
-```go
-type Indexes struct {
-	MerkledropId uint64
-	Index        []uint64
+`MerkleDropByOwner` and `MerkleDropByEndHeight` are additional state objects for querying MerkleDrop by their `Owner` or by their `EndHeight`. Similarly the `ClaimedMerkleDrop` is used for querying which index claimed an `MerkleDrop`.
+
+
+## Genesis State
+
+The `x/merkledrop` module's `GenesisState` defines the state necessary for initializing the chain from a previous exported height. 
+
+It is makes use of the `Indexes` structure:
+```protobuf
+message Indexes {
+  uint64 merkledrop_id = 1 [ (gogoproto.moretags) = "yaml:\"mdi\"" ];
+  repeated uint64 index = 2 [ (gogoproto.moretags) = "yaml:\"i\"" ];
 }
 ```
 
+And is defined  as:
+```protobuf
+message GenesisState {
+  uint64 last_merkledrop_id = 1;
 
-## Params
+  repeated Merkledrop merkledrops = 2 [ (gogoproto.nullable) = false ];
 
-In the state definition, we can find the **Params**. This section corresponds to a module-wide configuration structure that stores system parameters. In particular, it defines the overall merkledrop module functioning and contains the **creationFee** for the _merkledrop_. Such an implementation allows governance to decide the creation fee, in an arbitrary way - since proposals can modify it.
+  repeated Indexes indexes = 3;
 
-```go
-type Params struct {
-	CreationFee	sdk.Coin
+  Params params = 4 [ (gogoproto.nullable) = false ];
 }
 ```
